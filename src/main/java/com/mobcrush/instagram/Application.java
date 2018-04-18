@@ -1,8 +1,10 @@
 package com.mobcrush.instagram;
 
+import com.mobcrush.instagram.service.AuthenticateService;
+
 public class Application {
 
     public static void main(String[] args) {
-        System.out.println("Ready to stream in Instagram");
+        new AuthenticateService().login("test", "test");
     }
 }
