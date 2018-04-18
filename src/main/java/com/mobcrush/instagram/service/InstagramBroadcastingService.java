@@ -8,6 +8,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -41,6 +42,7 @@ public class InstagramBroadcastingService {
 
         LOGGER.info("Going to create broadcast with UUID '{}' and token '{}'", uuid, token);
         HttpPost request = new HttpPost(API_BASE_URL + "live/create/");
+        addDefaultHeaders(request);
         CloseableHttpResponse response;
 
         try {
@@ -70,6 +72,7 @@ public class InstagramBroadcastingService {
 
         LOGGER.info("Going to start streaming with UUID '{}', token '{}' and broadcastId '{}'", uuid, token, broadcastId);
         HttpPost request = new HttpPost(API_BASE_URL + "live/" + broadcastId + "/start/");
+        addDefaultHeaders(request);
         CloseableHttpResponse response;
 
         try {
@@ -99,7 +102,7 @@ public class InstagramBroadcastingService {
         result.add(new BasicNameValuePair("_csrftoken", token));
         result.add(new BasicNameValuePair("preview_height", String.valueOf(PREVIEW_HEIGHT)));
         result.add(new BasicNameValuePair("preview_width", String.valueOf(PREVIEW_WIDTH)));
-        result.add(new BasicNameValuePair("broadcast_message", "?????"));
+        result.add(new BasicNameValuePair("broadcast_message", ""));
         result.add(new BasicNameValuePair("broadcast_type", "RTMP"));
         result.add(new BasicNameValuePair("internal_only", "0"));
 
@@ -127,4 +130,16 @@ public class InstagramBroadcastingService {
                 .setDefaultRequestConfig(requestConfig)
                 .build();
     }
+
+    private void addDefaultHeaders(HttpEntityEnclosingRequestBase request) {
+        request.addHeader("X-IG-App-ID", "567067343352427");
+        request.addHeader("X-IG-Capabilities", "3brTBw==");
+        request.addHeader("X-IG-Connection-Type", "WIFI");
+        request.addHeader("X-IG-Connection-Speed", "3000kbps");
+        request.addHeader("X-IG-Bandwidth-Speed-KBPS", "-1.000");
+        request.addHeader("X-IG-Bandwidth-TotalBytes-B", "0");
+        request.addHeader("X-IG-Bandwidth-TotalTime-MS", "0");
+    }
+
+
 }
