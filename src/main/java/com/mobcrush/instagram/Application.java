@@ -7,10 +7,12 @@ import org.slf4j.LoggerFactory;
 
 public class Application {
     private static org.slf4j.Logger LOG = LoggerFactory.getLogger(Application.class);
+    private static String TEST_USERNAME = "ivan.mobile";
+    private static String TEST_PASSWORD = "ivan.mobile84";
 
     public static void main(String[] args) {
         try {
-            Instagram4j instagram = new AuthenticateService().login("test", "test");
+            Instagram4j instagram = new AuthenticateService().login(TEST_USERNAME, TEST_PASSWORD);
         } catch (Exception ex) {
             LOG.error("Something went wrong: ", ex);
         }
