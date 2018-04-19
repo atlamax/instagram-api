@@ -34,6 +34,7 @@ public class FFmpegRunnerService {
                     .setInput(videoFilePath)
                     .addExtraArgs("-rtbufsize", "256M")
                     .addExtraArgs("-re")
+                    .addExtraArgs("-report")
                     .setVerbosity(FFmpegBuilder.Verbosity.VERBOSE)
                     .addOutput(streamUploadUrl)
                         .addExtraArgs("-acodec", "libmp3lame")
@@ -51,6 +52,7 @@ public class FFmpegRunnerService {
                         .addExtraArgs("-g", "30")
                         .addExtraArgs("-r", "30")
                         .addExtraArgs("-f", "flv")
+                        .addExtraArgs("-loglevel", "verbose")
                         .done();
 
             /*
