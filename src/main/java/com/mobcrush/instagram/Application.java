@@ -10,8 +10,11 @@ import com.mobcrush.instagram.request.payload.StartLivePayload;
 import com.mobcrush.instagram.service.AuthenticateService;
 import com.mobcrush.instagram.service.FFmpegRunnerService;
 import com.mobcrush.instagram.service.InstagramBroadcastingService;
+import org.apache.http.client.utils.URIBuilder;
 import org.brunocvcunha.instagram4j.Instagram4j;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
 
 
 public class Application {
@@ -41,7 +44,11 @@ public class Application {
             StartLiveRequest startLiveRequest = new StartLiveRequest(startLivePayload, response.getBroadcastId());
             StartLiveResult startLiveResult = instagram.sendRequest(startLiveRequest);
 
-//            FFmpegRunnerService.run("", "");
+            URI uri =  new URIBuilder(response.getUploadUrl())
+                    .setScheme("rtmp")
+                    .setPort(80)
+                    .build();
+            FFmpegRunnerService.run("c:\\Downloads\\sample.mp4", uri.toString());
         } catch (Exception ex) {
             LOG.error("Something went wrong: ", ex);
         }
