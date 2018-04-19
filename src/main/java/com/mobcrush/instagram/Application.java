@@ -1,6 +1,5 @@
 package com.mobcrush.instagram;
 
-import com.mobcrush.instagram.domain.CreateLiveResponse;
 import com.mobcrush.instagram.request.CreateLiveRequest;
 import com.mobcrush.instagram.request.CreateLiveResult;
 import com.mobcrush.instagram.request.StartLiveRequest;
@@ -9,7 +8,6 @@ import com.mobcrush.instagram.request.payload.CreateLivePayload;
 import com.mobcrush.instagram.request.payload.StartLivePayload;
 import com.mobcrush.instagram.service.AuthenticateService;
 import com.mobcrush.instagram.service.FFmpegRunnerService;
-import com.mobcrush.instagram.service.InstagramBroadcastingService;
 import org.apache.http.client.utils.URIBuilder;
 import org.brunocvcunha.instagram4j.Instagram4j;
 import org.slf4j.LoggerFactory;
@@ -53,11 +51,11 @@ public class Application {
             StartLiveRequest startLiveRequest = new StartLiveRequest(startLivePayload, response.getBroadcastId());
             StartLiveResult startLiveResult = instagram.sendRequest(startLiveRequest);
 
-//            URI uri =  new URIBuilder(response.getUploadUrl())
-//                    .setScheme("rtmp")
-//                    .setPort(80)
-//                    .build();
-            FFmpegRunnerService.run(videoFile, response.getUploadUrl());
+            URI uri =  new URIBuilder(response.getUploadUrl())
+                    .setScheme("rtmp")
+                    .setPort(80)
+                    .build();
+            FFmpegRunnerService.run(videoFile, uri.toString());
         } catch (Exception ex) {
             LOG.error("Something went wrong: ", ex);
         }
