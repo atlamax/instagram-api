@@ -11,13 +11,15 @@ public class AuthenticateService {
 
 
     public Instagram4j login (String username, String password) {
+        Instagram4j instagram = null;
         try {
-            Instagram4j instagram = Instagram4j.builder().username(username).password(password).build();
+            instagram = Instagram4j.builder().username(username).password(password).build();
             instagram.setup();
             instagram.login();
             LOGGER.info("Login success");
         } catch (IOException ex) {
             LOGGER.error("Error occurred", ex);
         }
+        return instagram;
     }
 }
