@@ -44,6 +44,9 @@ public class Application {
         try {
             Instagram4j instagram = new AuthenticateService().login(user, password);
 
+            //Instagram4j myInstagram = new AuthenticateService().loginByToken(instagram);
+
+
             LiveBroadcastService liveBroadcastService = new LiveBroadcastService(instagram);
             CreateLiveResult live = liveBroadcastService.start();
             if (live == null) {
@@ -54,7 +57,10 @@ public class Application {
             if (streamUrl != null) {
                 ffmpegThread = FFmpegRunnerService.run(streamUrl, live.getUploadUrl());
             } else {
-                ffmpegThread = FFmpegRunnerService.run(videoFile, live.getUploadUrl());
+                ffmpegThread = FFmpegRunnerService.run(videoFile, new URIBuilder(live.getUploadUrl())
+                        .setScheme("rtmp")
+                        .setPort(80)
+                        .build().toString());
             }
 
             if (ffmpegThread == null) {
