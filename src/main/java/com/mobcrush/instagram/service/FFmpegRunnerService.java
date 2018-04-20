@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
@@ -16,12 +17,8 @@ public class FFmpegRunnerService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(FFmpegRunnerService.class);
 
-    private static final String COMPLEX_FILTER_BASE = "[0:v]crop=w=iw:h=ih/2[top];[1:v]crop=w=iw:h=ih/2[bottom];[top][bottom]vstack[vid]";
-    private static final String STEREO_AUDIO_COMPLEX_FILTER = ";amerge,pan=stereo|c0<c0|c1<c1";
-    private static final String MONO_AUDIO_COMPLEX_FILTER = ";pan=stereo|c0=c0|c1=c0[aout]";
-    private static final String[] MONO_AUDIO_MAP_PARAMETERS = new String[] {"-map", "[aout]"};
-
-    public static void run(@Nonnull String videoFilePath, @Nonnull String streamUploadUrl) {
+    @Nullable
+    public static Thread run(@Nonnull String videoFilePath, @Nonnull String streamUploadUrl) {
         notNull(videoFilePath, "Path to video file must not be null");
         notNull(streamUploadUrl, "Stream URL must not be null");
 
@@ -55,30 +52,15 @@ public class FFmpegRunnerService {
                         .addExtraArgs("-loglevel", "verbose")
                         .done();
 
-            /*
-            '-rtbufsize 256M -re -i %s
-             -acodec libmp3lame
-              -ar 44100
-               -b:a 128k
-                -pix_fmt yuv420p
-                 -profile:v baseline
-                  -s 720x1280
-                   -bufsize 6000k
-                    -vb 400k
-                     -maxrate 1500k
-                      -deinterlace
-                       -vcodec libx264
-                        -preset veryfast
-                         -g 30
-                          -r 30
-                           -f flv
-                            %s'
-             */
+            FFmpegJob job = new FFmpegExecutor(ffmpeg, ffprobe)
+                    .createJob(builder);
+            Thread thread = new Thread(() -> job.run());
+            thread.start();
 
-            FFmpegJob job = new FFmpegExecutor(ffmpeg, ffprobe).createJob(builder);
-            new Thread(() -> job.run()).start();
+            return thread;
         } catch (Exception e) {
-            LOGGER.error("Error occur during running FFMpeg", e);
+            LOGGER.error("Error occur during running FFmpeg", e);
+            return null;
         }
     }
 }
