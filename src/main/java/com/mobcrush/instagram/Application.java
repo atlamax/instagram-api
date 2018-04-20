@@ -8,27 +8,42 @@ import com.mobcrush.instagram.request.payload.CreateLivePayload;
 import com.mobcrush.instagram.request.payload.StartLivePayload;
 import com.mobcrush.instagram.service.AuthenticateService;
 import com.mobcrush.instagram.service.FFmpegRunnerService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.brunocvcunha.instagram4j.Instagram4j;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Optional;
 
 
 public class Application {
 
     private static org.slf4j.Logger LOG = LoggerFactory.getLogger(Application.class);
 
-    private static final String USER_PARAMETER_NAME = "user";
-    private static final String PASSWORD_PARAMETER_NAME = "password";
-    private static final String FILE_PARAMETER_NAME = "file";
+    @Option(name = "-u", aliases = "--user", usage = "Instagram username")
+    private String user;
+
+    @Option(name = "-p", aliases = "--password", usage = "Instagram password")
+    private String password;
+
+    @Option(name = "-t", aliases = "--token", usage = "Instagram token")
+    private String token;
+
+    @Option(name = "-f", aliases = "--file", usage = "Path to video file")
+    private String videoFile;
+
+    @Option(name = "-s", aliases = "--stream", usage = "RTMP stream URL")
+    private String streamUrl;
 
     public static void main(String[] args) {
-        String user = parseParameter(USER_PARAMETER_NAME, args);
-        String password = parseParameter(PASSWORD_PARAMETER_NAME, args);
-        String videoFile = parseParameter(FILE_PARAMETER_NAME, args);
+        new Application().doMain(args);
+    }
+
+    public void doMain(String[] args) {
+        parseArgs(args);
 
         try {
             Instagram4j instagram = new AuthenticateService().login(user, password);
@@ -55,26 +70,39 @@ public class Application {
                     .setScheme("rtmp")
                     .setPort(80)
                     .build();
-            FFmpegRunnerService.run(videoFile, uri.toString());
+            if (streamUrl != null) {
+                FFmpegRunnerService.run(streamUrl, uri.toString());
+            } else {
+                FFmpegRunnerService.run(videoFile, uri.toString());
+            }
+
         } catch (Exception ex) {
             LOG.error("Something went wrong: ", ex);
+        }
+    }
+
+    private void parseArgs(String[] args) {
+        CmdLineParser parser = new CmdLineParser(this);
+
+        try {
+            // parse the arguments.
+            parser.parseArgument(args);
+            if ( (StringUtils.isEmpty(user) || StringUtils.isEmpty(password)) && StringUtils.isEmpty(token))
+                throw new CmdLineException(parser, "You should set username/password or token ");
+
+            if (StringUtils.isEmpty(videoFile) && StringUtils.isEmpty(streamUrl) )
+                throw new CmdLineException(parser, "You should set at least one of parameters -  path to video file or RTMP stream URL ");
+
+        } catch( CmdLineException e ) {
+            System.err.println(e.getMessage());
+            System.err.println("available arguments...");
+            // print the list of available options
+            parser.printUsage(System.err);
+            System.err.println();
+            System.exit(1);
         }
 
     }
 
-    private static String parseParameter(String name, String[] args) {
-        Optional<String> optional = Arrays.stream(args)
-                .filter(arg ->
-                        arg.startsWith("--" + name)
-                )
-                .map(arg -> {
-                    String[] split = arg.split("=");
-                    if (split.length == 2) {
-                        return split[1];
-                    }
-                    throw new IllegalArgumentException("Cannot find value for parameter '" + name + "'");
-                }).findFirst();
 
-        return optional.get();
-    }
 }
