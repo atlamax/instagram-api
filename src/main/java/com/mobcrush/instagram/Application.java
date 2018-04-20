@@ -1,13 +1,9 @@
 package com.mobcrush.instagram;
 
-import com.mobcrush.instagram.request.CreateLiveRequest;
-import com.mobcrush.instagram.request.CreateLiveResult;
-import com.mobcrush.instagram.request.StartLiveRequest;
-import com.mobcrush.instagram.request.StartLiveResult;
+import com.mobcrush.instagram.request.*;
 import com.mobcrush.instagram.request.payload.CreateLivePayload;
 import com.mobcrush.instagram.request.payload.StartLivePayload;
-import com.mobcrush.instagram.service.AuthenticateService;
-import com.mobcrush.instagram.service.FFmpegRunnerService;
+import com.mobcrush.instagram.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.brunocvcunha.instagram4j.Instagram4j;
@@ -48,33 +44,42 @@ public class Application {
         try {
             Instagram4j instagram = new AuthenticateService().login(user, password);
 
-            CreateLivePayload payload = new CreateLivePayload();
-            payload.set_uuid(instagram.getUuid());
-            payload.set_csrftoken(instagram.getOrFetchCsrf());
-            payload.setPreview_height("1184");
-            payload.setPreview_width("720");
-            payload.setBroadcast_message("");
-            payload.setBroadcast_type("RTMP");
-            payload.setInternal_only("0");
-            CreateLiveRequest request = new CreateLiveRequest(payload);
-            CreateLiveResult response = instagram.sendRequest(request);
-
-            StartLivePayload startLivePayload = new StartLivePayload();
-            startLivePayload.set_uuid(instagram.getUuid());
-            startLivePayload.set_csrftoken(instagram.getOrFetchCsrf());
-            startLivePayload.setShould_send_notifications("1");
-            StartLiveRequest startLiveRequest = new StartLiveRequest(startLivePayload, response.getBroadcastId());
-            StartLiveResult startLiveResult = instagram.sendRequest(startLiveRequest);
-
-            URI uri =  new URIBuilder(response.getUploadUrl())
-                    .setScheme("rtmp")
-                    .setPort(80)
-                    .build();
-            if (streamUrl != null) {
-                FFmpegRunnerService.run(streamUrl, uri.toString());
-            } else {
-                FFmpegRunnerService.run(videoFile, uri.toString());
+            LiveBroadcastService liveBroadcastService = new LiveBroadcastService(instagram);
+            CreateLiveResult live = liveBroadcastService.start();
+            if (live == null) {
+                return;
             }
+
+            Thread ffmpegThread;
+            if (streamUrl != null) {
+                ffmpegThread = FFmpegRunnerService.run(streamUrl, live.getUploadUrl());
+            } else {
+                ffmpegThread = FFmpegRunnerService.run(videoFile, live.getUploadUrl());
+            }
+
+            if (ffmpegThread == null) {
+                LOG.warn("FFmpeg thread is null. Going to exit");
+                return;
+            }
+
+            BroadcastDataService broadcastDataService = new BroadcastDataService(instagram);
+            LiveHeartbeatService liveHeartbeatService = new LiveHeartbeatService(instagram);
+            do {
+                CommentsResponse comments = broadcastDataService.getComments(live.getBroadcastId());
+                if (comments != null) {
+                    LOG.info("Get comments: {}", comments.getCount());
+                }
+
+                liveHeartbeatService.perform(live.getBroadcastId());
+
+                LikeCountResponse likes = broadcastDataService.getLikes(live.getBroadcastId());
+                if (likes != null) {
+                    LOG.info("Get likes: {}", likes.getCount());
+                }
+
+            } while (ffmpegThread.isAlive());
+
+            liveBroadcastService.end(live.getBroadcastId());
 
         } catch (Exception ex) {
             LOG.error("Something went wrong: ", ex);

@@ -44,7 +44,7 @@ public class LiveBroadcastService {
      * @return URI for broadcasting
      */
     @Nullable
-    public URI start() {
+    public CreateLiveResult start() {
         String csrfToken;
         try {
             csrfToken = instagram.getOrFetchCsrf();
@@ -64,7 +64,9 @@ public class LiveBroadcastService {
         );
         sendRequest(startRequest);
 
-        return updateBroadcastingURL(createResponse.getUploadUrl());
+        updateBroadcastingURL(createResponse);
+
+        return createResponse;
     }
 
     /**
@@ -183,19 +185,17 @@ public class LiveBroadcastService {
     /**
      * Update URL for broadcasting
      *
-     * @param url broadcasting URL
-     *
-     * @return URL for broadcasting
+     * @param response response model
      */
-    private URI updateBroadcastingURL(String url) {
+    private void updateBroadcastingURL(CreateLiveResult response) {
         try {
-            return new URIBuilder(url)
+            URI url = new URIBuilder(response.getUploadUrl())
                     .setScheme(RTMP_SCHEME)
                     .setPort(RTMP_PORT)
                     .build();
+            response.setUploadUrl(url.toString());
         } catch (URISyntaxException e) {
             LOGGER.error("Error occurred while updating RTMP URL for live streaming");
-            return null;
         }
     }
 }
