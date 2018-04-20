@@ -60,10 +60,11 @@ public class LiveCommentService {
     }
 
     /**
-     * Build request to add finished broadcast to "Stories"
+     * Build request to get comments
      *
      * @param csrfToken   CSRF token
      * @param broadcastId broadcast Id
+     *
      * @return request
      */
     private GetCommentsRequest buildGetRequest(String csrfToken, String broadcastId) {
