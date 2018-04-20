@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class InstagramBroadcastingServiceTest {
+public class LiveBroadcastServiceTest {
 
     @Test
     public void testRequestBody() throws Exception {
