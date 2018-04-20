@@ -1,9 +1,7 @@
 package com.mobcrush.instagram.service;
 
-import com.mobcrush.instagram.request.CreateLiveRequest;
-import com.mobcrush.instagram.request.CreateLiveResult;
-import com.mobcrush.instagram.request.EndLiveRequest;
-import com.mobcrush.instagram.request.StartLiveRequest;
+import com.mobcrush.instagram.request.*;
+import com.mobcrush.instagram.request.payload.AddLiveToStoriesPayload;
 import com.mobcrush.instagram.request.payload.CreateLivePayload;
 import com.mobcrush.instagram.request.payload.EndLivePayload;
 import com.mobcrush.instagram.request.payload.StartLivePayload;
@@ -85,8 +83,11 @@ public class LiveBroadcastService {
             return;
         }
 
-        EndLiveRequest request = buildEndRequest(csrfToken, broadcastId);
-        sendRequest(request);
+        EndLiveRequest endRequest = buildEndRequest(csrfToken, broadcastId);
+        sendRequest(endRequest);
+
+        AddLiveToStoriesRequest addToStoriesRequest = buildAddToStoriesRequest(csrfToken, broadcastId);
+        sendRequest(addToStoriesRequest);
     }
 
     /**
@@ -138,11 +139,28 @@ public class LiveBroadcastService {
      */
     private EndLiveRequest buildEndRequest(String csrfToken, String broadcastId) {
         EndLivePayload payload = new EndLivePayload();
-        payload.set_uid(String.valueOf(instagram.getUserId()));
-        payload.set_uuid(instagram.getUuid());
-        payload.set_csrftoken(csrfToken);
+        payload.setUid(String.valueOf(instagram.getUserId()));
+        payload.setUuid(instagram.getUuid());
+        payload.setCsrfToken(csrfToken);
 
         return new EndLiveRequest(payload, broadcastId);
+    }
+
+    /**
+     * Build request to add finished broadcast to "Stories"
+     *
+     * @param csrfToken   CSRF token
+     * @param broadcastId broadcast Id
+     *
+     * @return request
+     */
+    private AddLiveToStoriesRequest buildAddToStoriesRequest(String csrfToken, String broadcastId) {
+        AddLiveToStoriesPayload payload = new AddLiveToStoriesPayload();
+        payload.setUid(String.valueOf(instagram.getUserId()));
+        payload.setUuid(instagram.getUuid());
+        payload.setCsrfToken(csrfToken);
+
+        return new AddLiveToStoriesRequest(payload, broadcastId);
     }
 
     /**

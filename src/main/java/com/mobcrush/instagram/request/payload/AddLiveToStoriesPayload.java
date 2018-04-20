@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EndLivePayload {
+public class AddLiveToStoriesPayload {
 
     @JsonProperty("_uid")
     private String uid;
