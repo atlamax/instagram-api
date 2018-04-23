@@ -103,13 +103,13 @@ public class LiveBroadcastService {
      */
     private CreateLiveRequest buildCreateRequest(String uuid, String csrfToken) {
         CreateLivePayload payload = new CreateLivePayload();
-        payload.set_uuid(uuid);
-        payload.set_csrftoken(csrfToken);
-        payload.setPreview_height(PREVIEW_HEIGHT);
-        payload.setPreview_width(PREVIEW_WIDTH);
-        payload.setBroadcast_message("");
-        payload.setBroadcast_type(RTMP_SCHEME);
-        payload.setInternal_only("0");
+        payload.setUuid(uuid);
+        payload.setCsrfToken(csrfToken);
+        payload.setPreviewHeight(PREVIEW_HEIGHT);
+        payload.setPreviewWidth(PREVIEW_WIDTH);
+        payload.setBroadcastMessage("");
+        payload.setBroadcastType(RTMP_SCHEME);
+        payload.setInternalOnly("0");
 
         return new CreateLiveRequest(payload);
     }
@@ -125,9 +125,9 @@ public class LiveBroadcastService {
      */
     private StartLiveRequest buildStartRequest(String uuid, String csrfToken, String broadcastId) {
         StartLivePayload startLivePayload = new StartLivePayload();
-        startLivePayload.set_uuid(uuid);
-        startLivePayload.set_csrftoken(csrfToken);
-        startLivePayload.setShould_send_notifications("1");
+        startLivePayload.setUuid(uuid);
+        startLivePayload.setCsrfToken(csrfToken);
+        startLivePayload.setShouldSendNotifications("1");
 
         return new StartLiveRequest(startLivePayload, broadcastId);
     }

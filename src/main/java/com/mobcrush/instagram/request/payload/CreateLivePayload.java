@@ -1,84 +1,91 @@
 package com.mobcrush.instagram.request.payload;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class CreateLivePayload {
 
-    private String _uuid;
-    private String _csrftoken;
-    private String preview_height;
-    private String preview_width;
-    private String broadcast_message;
-    private String broadcast_type;
-    private String internal_only;
+    @JsonProperty("_uuid")
+    private String uuid;
+    @JsonProperty("_csrftoken")
+    private String csrfToken;
+    @JsonProperty("preview_height")
+    private String previewHeight;
+    @JsonProperty("preview_width")
+    private String previewWidth;
+    @JsonProperty("broadcast_message")
+    private String broadcastMessage;
+    @JsonProperty("broadcast_type")
+    private String broadcastType;
+    @JsonProperty("internal_only")
+    private String internalOnly;
 
-    public String get_uuid() {
-        return _uuid;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void set_uuid(String _uuid) {
-        this._uuid = _uuid;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
-    public String get_csrftoken() {
-        return _csrftoken;
+    public String getCsrfToken() {
+        return csrfToken;
     }
 
-    public void set_csrftoken(String _csrftoken) {
-        this._csrftoken = _csrftoken;
+    public void setCsrfToken(String csrfToken) {
+        this.csrfToken = csrfToken;
     }
 
-    public String getPreview_height() {
-        return preview_height;
+    public String getPreviewHeight() {
+        return previewHeight;
     }
 
-    public void setPreview_height(String preview_height) {
-        this.preview_height = preview_height;
+    public void setPreviewHeight(String previewHeight) {
+        this.previewHeight = previewHeight;
     }
 
-    public String getPreview_width() {
-        return preview_width;
+    public String getPreviewWidth() {
+        return previewWidth;
     }
 
-    public void setPreview_width(String preview_width) {
-        this.preview_width = preview_width;
+    public void setPreviewWidth(String previewWidth) {
+        this.previewWidth = previewWidth;
     }
 
-    public String getBroadcast_message() {
-        return broadcast_message;
+    public String getBroadcastMessage() {
+        return broadcastMessage;
     }
 
-    public void setBroadcast_message(String broadcast_message) {
-        this.broadcast_message = broadcast_message;
+    public void setBroadcastMessage(String broadcastMessage) {
+        this.broadcastMessage = broadcastMessage;
     }
 
-    public String getBroadcast_type() {
-        return broadcast_type;
+    public String getBroadcastType() {
+        return broadcastType;
     }
 
-    public void setBroadcast_type(String broadcast_type) {
-        this.broadcast_type = broadcast_type;
+    public void setBroadcastType(String broadcastType) {
+        this.broadcastType = broadcastType;
     }
 
-    public String getInternal_only() {
-        return internal_only;
+    public String getInternalOnly() {
+        return internalOnly;
     }
 
-    public void setInternal_only(String internal_only) {
-        this.internal_only = internal_only;
+    public void setInternalOnly(String internalOnly) {
+        this.internalOnly = internalOnly;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("_uuid", _uuid)
-                .append("_csrftoken", _csrftoken)
-                .append("preview_height", preview_height)
-                .append("preview_width", preview_width)
-                .append("broadcast_message", broadcast_message)
-                .append("broadcast_type", broadcast_type)
-                .append("internal_only", internal_only)
-                .appendSuper(super.toString())
+                .append("uuid", uuid)
+                .append("csrfToken", csrfToken)
+                .append("previewHeight", previewHeight)
+                .append("previewWidth", previewWidth)
+                .append("broadcastMessage", broadcastMessage)
+                .append("broadcastType", broadcastType)
+                .append("internalOnly", internalOnly)
                 .toString();
     }
 }
