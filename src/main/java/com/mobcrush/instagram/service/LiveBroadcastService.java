@@ -26,7 +26,7 @@ public class LiveBroadcastService {
 
     private static final String PREVIEW_WIDTH = "720";
     private static final String PREVIEW_HEIGHT = "1184";
-    private static final String RTMP_SCHEME = "RTMP";
+    private static final String RTMP_SCHEME = "rtmp";
     private static final int RTMP_PORT = 80;
 
     /**
