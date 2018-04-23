@@ -3,7 +3,8 @@ package com.mobcrush.instagram.service;
 import com.mobcrush.instagram.domain.Comment;
 import com.mobcrush.instagram.domain.CommentsResponse;
 import com.mobcrush.instagram.domain.LikeCountResponse;
-import com.mobcrush.instagram.request.*;
+import com.mobcrush.instagram.request.GetCommentsRequest;
+import com.mobcrush.instagram.request.LikeCountRequest;
 import com.mobcrush.instagram.request.payload.GetCommentsPayload;
 import com.mobcrush.instagram.request.payload.LikeCountPayload;
 import org.brunocvcunha.instagram4j.Instagram4j;
@@ -25,8 +26,8 @@ public class BroadcastDataService {
     private static final int COMMENTS_COUNT = 3;
 
     private Instagram4j instagram;
-    private long lastCommentTimestamp = 0;
-    private long lastLikeTimestamp = 0;
+    private long commentTimestamp = 0;
+    private long likeTimestamp = 0;
 
     /**
      * Default constructor
@@ -64,7 +65,7 @@ public class BroadcastDataService {
             return null;
         }
 
-        lastLikeTimestamp = response.getTimestamp();
+        likeTimestamp = response.getTimestamp();
 
         return response;
     }
@@ -79,7 +80,7 @@ public class BroadcastDataService {
     private GetCommentsRequest buildGetCommentsRequest(String broadcastId) {
         GetCommentsPayload payload = new GetCommentsPayload();
         payload.setCount(COMMENTS_COUNT);
-        payload.setLastCommentTimestamp(lastCommentTimestamp);
+        payload.setLastCommentTimestamp(commentTimestamp);
 
         return new GetCommentsRequest(payload, broadcastId);
     }
@@ -93,7 +94,7 @@ public class BroadcastDataService {
      */
     private LikeCountRequest buildLikeCountRequest(String broadcastId) {
         LikeCountPayload payload = new LikeCountPayload();
-        payload.setTimestamp(lastLikeTimestamp);
+        payload.setTimestamp(likeTimestamp);
 
         return new LikeCountRequest(payload, broadcastId);
     }
@@ -115,17 +116,25 @@ public class BroadcastDataService {
     }
 
     private void updateTimestamp(CommentsResponse response) {
-        Optional<Comment> lastComment = response.getComments()
-                .stream()
-                .min(Comparator.comparing(Comment::getCreatedDate));
+        long lastCommentTimestamp = 0;
+        if (response.getComments() != null) {
+            Optional<Comment> lastComment = response.getComments()
+                    .stream()
+                    .max(Comparator.comparing(Comment::getCreatedDate));
+            lastCommentTimestamp = lastComment.get().getCreatedDate();
+        }
 
-        Optional<Comment> lastSystemComment = response.getSystemComments()
-                .stream()
-                .min(Comparator.comparing(Comment::getCreatedDate));
+        long lastSystemCommentTimestamp = 0;
+        if (response.getSystemComments() != null) {
+            Optional<Comment> lastSystemComment = response.getSystemComments()
+                    .stream()
+                    .max(Comparator.comparing(Comment::getCreatedDate));
+            lastSystemCommentTimestamp = lastSystemComment.get().getCreatedDate();
+        }
 
-        lastCommentTimestamp = Math.max(
-                lastComment.get().getCreatedDate(),
-                lastSystemComment.get().getCreatedDate()
+        commentTimestamp = Math.max(
+                lastCommentTimestamp,
+                lastSystemCommentTimestamp
         );
     }
 }
