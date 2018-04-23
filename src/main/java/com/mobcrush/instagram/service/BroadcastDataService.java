@@ -1,5 +1,8 @@
 package com.mobcrush.instagram.service;
 
+import com.mobcrush.instagram.domain.Comment;
+import com.mobcrush.instagram.domain.CommentsResponse;
+import com.mobcrush.instagram.domain.LikeCountResponse;
 import com.mobcrush.instagram.request.*;
 import com.mobcrush.instagram.request.payload.GetCommentsPayload;
 import com.mobcrush.instagram.request.payload.LikeCountPayload;

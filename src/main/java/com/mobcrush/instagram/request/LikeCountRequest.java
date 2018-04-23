@@ -1,10 +1,9 @@
 package com.mobcrush.instagram.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mobcrush.instagram.request.payload.AddLiveToStoriesPayload;
+import com.mobcrush.instagram.domain.LikeCountResponse;
 import com.mobcrush.instagram.request.payload.LikeCountPayload;
 import org.brunocvcunha.instagram4j.requests.InstagramPostRequest;
-import org.brunocvcunha.instagram4j.requests.payload.StatusResult;
 
 public class LikeCountRequest extends InstagramPostRequest<LikeCountResponse> {
 

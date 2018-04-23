@@ -1,10 +1,9 @@
 package com.mobcrush.instagram.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mobcrush.instagram.request.payload.AddLiveToStoriesPayload;
+import com.mobcrush.instagram.domain.HeartbeatResponse;
 import com.mobcrush.instagram.request.payload.HeartbeatPayload;
 import org.brunocvcunha.instagram4j.requests.InstagramPostRequest;
-import org.brunocvcunha.instagram4j.requests.payload.StatusResult;
 
 public class HeartbeatRequest extends InstagramPostRequest<HeartbeatResponse> {
 

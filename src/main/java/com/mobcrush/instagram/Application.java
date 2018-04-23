@@ -1,8 +1,8 @@
 package com.mobcrush.instagram;
 
-import com.mobcrush.instagram.request.CommentsResponse;
-import com.mobcrush.instagram.request.CreateLiveResult;
-import com.mobcrush.instagram.request.LikeCountResponse;
+import com.mobcrush.instagram.domain.CommentsResponse;
+import com.mobcrush.instagram.domain.CreateLiveResponse;
+import com.mobcrush.instagram.domain.LikeCountResponse;
 import com.mobcrush.instagram.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.brunocvcunha.instagram4j.Instagram4j;
@@ -45,7 +45,7 @@ public class Application {
             Instagram4j instagram = new AuthenticateService().login(user, password);
 
             LiveBroadcastService liveBroadcastService = new LiveBroadcastService(instagram);
-            CreateLiveResult live = liveBroadcastService.start();
+            CreateLiveResponse live = liveBroadcastService.start();
             if (live == null) {
                 return;
             }

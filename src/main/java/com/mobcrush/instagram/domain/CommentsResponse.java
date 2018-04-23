@@ -1,7 +1,8 @@
-package com.mobcrush.instagram.request;
+package com.mobcrush.instagram.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mobcrush.instagram.domain.Comment;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.brunocvcunha.instagram4j.requests.payload.StatusResult;
 

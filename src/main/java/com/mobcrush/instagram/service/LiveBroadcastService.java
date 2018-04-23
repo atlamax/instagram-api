@@ -1,5 +1,6 @@
 package com.mobcrush.instagram.service;
 
+import com.mobcrush.instagram.domain.CreateLiveResponse;
 import com.mobcrush.instagram.request.*;
 import com.mobcrush.instagram.request.payload.AddLiveToStoriesPayload;
 import com.mobcrush.instagram.request.payload.CreateLivePayload;
@@ -44,7 +45,7 @@ public class LiveBroadcastService {
      * @return URI for broadcasting
      */
     @Nullable
-    public CreateLiveResult start() {
+    public CreateLiveResponse start() {
         String csrfToken;
         try {
             csrfToken = instagram.getOrFetchCsrf();
@@ -54,7 +55,7 @@ public class LiveBroadcastService {
         }
 
         CreateLiveRequest createRequest = buildCreateRequest(instagram.getUuid(), csrfToken);
-        CreateLiveResult createResponse = sendRequest(createRequest);
+        CreateLiveResponse createResponse = sendRequest(createRequest);
         if (createResponse == null) {
             return null;
         }
@@ -187,7 +188,7 @@ public class LiveBroadcastService {
      *
      * @param response response model
      */
-    private void updateBroadcastingURL(CreateLiveResult response) {
+    private void updateBroadcastingURL(CreateLiveResponse response) {
         try {
             URI url = new URIBuilder(response.getUploadUrl())
                     .setScheme(RTMP_SCHEME)

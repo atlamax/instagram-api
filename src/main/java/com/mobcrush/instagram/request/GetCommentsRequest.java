@@ -1,6 +1,7 @@
 package com.mobcrush.instagram.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mobcrush.instagram.domain.CommentsResponse;
 import com.mobcrush.instagram.request.payload.GetCommentsPayload;
 import org.brunocvcunha.instagram4j.requests.InstagramPostRequest;
 
