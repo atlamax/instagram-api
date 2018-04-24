@@ -1,23 +1,23 @@
 package com.mobcrush.instagram;
 
-import com.mobcrush.instagram.request.*;
-import com.mobcrush.instagram.request.payload.CreateLivePayload;
-import com.mobcrush.instagram.request.payload.StartLivePayload;
+import com.mobcrush.instagram.domain.CommentsResponse;
+import com.mobcrush.instagram.domain.CreateLiveResponse;
+import com.mobcrush.instagram.domain.LikeCountResponse;
 import com.mobcrush.instagram.service.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.utils.URIBuilder;
 import org.brunocvcunha.instagram4j.Instagram4j;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
 
 
 public class Application {
 
-    private static org.slf4j.Logger LOG = LoggerFactory.getLogger(Application.class);
+    private static Logger LOG = LoggerFactory.getLogger(Application.class);
+
+    private static final int PULLING_BROADCAST_DATA_PAUSE = 2000;
 
     @Option(name = "-u", aliases = "--user", usage = "Instagram username")
     private String user;
@@ -38,7 +38,7 @@ public class Application {
         new Application().doMain(args);
     }
 
-    public void doMain(String[] args) {
+    private void doMain(String[] args) {
         parseArgs(args);
 
         try {
@@ -48,7 +48,7 @@ public class Application {
 
 
             LiveBroadcastService liveBroadcastService = new LiveBroadcastService(instagram);
-            CreateLiveResult live = liveBroadcastService.start();
+            CreateLiveResponse live = liveBroadcastService.start();
             if (live == null) {
                 return;
             }
@@ -82,6 +82,8 @@ public class Application {
                 if (likes != null) {
                     LOG.info("Get likes: {}", likes.getCount());
                 }
+
+                Thread.sleep(PULLING_BROADCAST_DATA_PAUSE);
 
             } while (ffmpegThread.isAlive());
 

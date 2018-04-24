@@ -1,5 +1,6 @@
 package com.mobcrush.instagram.service;
 
+import com.mobcrush.instagram.domain.CreateLiveResponse;
 import com.mobcrush.instagram.request.*;
 import com.mobcrush.instagram.request.payload.AddLiveToStoriesPayload;
 import com.mobcrush.instagram.request.payload.CreateLivePayload;
@@ -26,7 +27,7 @@ public class LiveBroadcastService {
 
     private static final String PREVIEW_WIDTH = "720";
     private static final String PREVIEW_HEIGHT = "1184";
-    private static final String RTMP_SCHEME = "RTMP";
+    private static final String RTMP_SCHEME = "rtmp";
     private static final int RTMP_PORT = 80;
 
     /**
@@ -44,7 +45,7 @@ public class LiveBroadcastService {
      * @return URI for broadcasting
      */
     @Nullable
-    public CreateLiveResult start() {
+    public CreateLiveResponse start() {
         String csrfToken;
         try {
             csrfToken = instagram.getOrFetchCsrf();
@@ -54,7 +55,7 @@ public class LiveBroadcastService {
         }
 
         CreateLiveRequest createRequest = buildCreateRequest(instagram.getUuid(), csrfToken);
-        CreateLiveResult createResponse = sendRequest(createRequest);
+        CreateLiveResponse createResponse = sendRequest(createRequest);
         if (createResponse == null) {
             return null;
         }
@@ -102,13 +103,13 @@ public class LiveBroadcastService {
      */
     private CreateLiveRequest buildCreateRequest(String uuid, String csrfToken) {
         CreateLivePayload payload = new CreateLivePayload();
-        payload.set_uuid(uuid);
-        payload.set_csrftoken(csrfToken);
-        payload.setPreview_height(PREVIEW_HEIGHT);
-        payload.setPreview_width(PREVIEW_WIDTH);
-        payload.setBroadcast_message("");
-        payload.setBroadcast_type(RTMP_SCHEME);
-        payload.setInternal_only("0");
+        payload.setUuid(uuid);
+        payload.setCsrfToken(csrfToken);
+        payload.setPreviewHeight(PREVIEW_HEIGHT);
+        payload.setPreviewWidth(PREVIEW_WIDTH);
+        payload.setBroadcastMessage("");
+        payload.setBroadcastType(RTMP_SCHEME);
+        payload.setInternalOnly("0");
 
         return new CreateLiveRequest(payload);
     }
@@ -124,9 +125,9 @@ public class LiveBroadcastService {
      */
     private StartLiveRequest buildStartRequest(String uuid, String csrfToken, String broadcastId) {
         StartLivePayload startLivePayload = new StartLivePayload();
-        startLivePayload.set_uuid(uuid);
-        startLivePayload.set_csrftoken(csrfToken);
-        startLivePayload.setShould_send_notifications("1");
+        startLivePayload.setUuid(uuid);
+        startLivePayload.setCsrfToken(csrfToken);
+        startLivePayload.setShouldSendNotifications("1");
 
         return new StartLiveRequest(startLivePayload, broadcastId);
     }
@@ -187,7 +188,7 @@ public class LiveBroadcastService {
      *
      * @param response response model
      */
-    private void updateBroadcastingURL(CreateLiveResult response) {
+    private void updateBroadcastingURL(CreateLiveResponse response) {
         try {
             URI url = new URIBuilder(response.getUploadUrl())
                     .setScheme(RTMP_SCHEME)

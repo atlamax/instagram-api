@@ -1,4 +1,4 @@
-package com.mobcrush.instagram.request;
+package com.mobcrush.instagram.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -1,10 +1,11 @@
 package com.mobcrush.instagram.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mobcrush.instagram.domain.CreateLiveResponse;
 import com.mobcrush.instagram.request.payload.CreateLivePayload;
 import org.brunocvcunha.instagram4j.requests.InstagramPostRequest;
 
-public class CreateLiveRequest extends InstagramPostRequest<CreateLiveResult> {
+public class CreateLiveRequest extends InstagramPostRequest<CreateLiveResponse> {
 
     private CreateLivePayload payload;
 
@@ -31,8 +32,8 @@ public class CreateLiveRequest extends InstagramPostRequest<CreateLiveResult> {
     }
 
     @Override
-    public CreateLiveResult parseResult(int statusCode, String content) {
-        return parseJson(statusCode, content, CreateLiveResult.class);
+    public CreateLiveResponse parseResult(int statusCode, String content) {
+        return parseJson(statusCode, content, CreateLiveResponse.class);
     }
 
     @Override
