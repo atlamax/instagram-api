@@ -19,20 +19,53 @@ public class Application {
 
     private static final int PULLING_BROADCAST_DATA_PAUSE = 2000;
 
-    @Option(name = "-u", aliases = "--user", usage = "Instagram username")
+    @Option(
+            name = "-u", aliases = "--user", usage = "Instagram username", metaVar = "String",
+            depends = {"-p"}, forbids = {"-t"}
+    )
     private String user;
 
-    @Option(name = "-p", aliases = "--password", usage = "Instagram password")
+    @Option(
+            name = "-p", aliases = "--password", usage = "Instagram password", metaVar = "String",
+            depends = {"-u"}, forbids = {"-t"}
+    )
     private String password;
 
-    @Option(name = "-t", aliases = "--token", usage = "Instagram token")
+    @Option(
+            name = "-t", aliases = "--token", usage = "Instagram token", metaVar = "String",
+            forbids = {"-u", "-p"}
+    )
     private String token;
 
-    @Option(name = "-f", aliases = "--file", usage = "Path to video file")
+    @Option(
+            name = "-f", aliases = "--file", usage = "Path to video file", metaVar = "String",
+            forbids = {"-s"}
+    )
     private String videoFile;
 
-    @Option(name = "-s", aliases = "--stream", usage = "RTMP stream URL")
+    @Option(
+            name = "-s", aliases = "--stream", usage = "RTMP stream URL", metaVar = "URL",
+            forbids = {"-f"}
+    )
     private String streamUrl;
+
+    @Option(
+            name = "--mobcrush-host", usage = "Mobcrush base URL", metaVar = "URL",
+            depends = {"--mobcrush-chatroom-id", "--mobcrush-access-token"}
+    )
+    private String mobcrushHost;
+
+    @Option(
+            name = "--mobcrush-chatroom-id", usage = "Mobcrush chatroom ID", metaVar = "String",
+            depends = {"--mobcrush-host", "--mobcrush-access-token"}
+    )
+    private String mobcrushChatroomId;
+
+    @Option(
+            name = "--mobcrush-access-token", usage = "Mobcrush access token", metaVar = "String",
+            depends = {"--mobcrush-chatroom-id", "--mobcrush-host"}
+    )
+    private String mobcrushAccessToken;
 
     public static void main(String[] args) {
         new Application().doMain(args);
