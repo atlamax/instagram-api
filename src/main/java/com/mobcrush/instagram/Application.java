@@ -77,7 +77,7 @@ public class Application {
                     LOG.info("Get likes: {}", likes.getCount());
                 }
 
-                Thread.sleep(2000);
+                Thread.sleep(PULLING_BROADCAST_DATA_PAUSE);
 
             } while (ffmpegThread.isAlive());
 
