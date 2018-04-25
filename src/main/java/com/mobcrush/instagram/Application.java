@@ -22,29 +22,29 @@ public class Application {
 
     @Option(
             name = "-u", aliases = "--user", usage = "Instagram username", metaVar = "String",
-            depends = {"-p"}, forbids = {"-t"}
+            depends = {"-p"}, forbids = {"-t", "-uuid", "-sessionid"}
     )
     private String user;
 
     @Option(
             name = "-p", aliases = "--password", usage = "Instagram password", metaVar = "String",
-            depends = {"-u"}, forbids = {"-t"}
+            depends = {"-u"}, forbids = {"-t", "-uuid", "-sessionid"}
     )
     private String password;
 
     @Option(
             name = "-t", aliases = "--token", usage = "Instagram token", metaVar = "String",
+            depends = {"-uuid", "-sessionid"},
             forbids = {"-u", "-p"}
     )
     private String token;
 
-    @Option(name = "-uuid", usage = "Instagram uuid")
+    @Option(name = "-uuid", usage = "Instagram uuid", depends = {"-t", "-sessionid"}, forbids = {"-u", "-p"})
     private String uuid;
 
-    @Option(name = "-sessionid", usage = "Instagram sessionId")
+    @Option(name = "-sessionid", usage = "Instagram sessionId", depends = {"-uuid", "-t"}, forbids = {"-u", "-p"})
     private String sessionId;
 
-    @Option(name = "-f", aliases = "--file", usage = "Path to video file")
     @Option(
             name = "-f", aliases = "--file", usage = "Path to video file", metaVar = "String",
             forbids = {"-s"}
