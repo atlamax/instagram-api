@@ -5,6 +5,7 @@ import com.mobcrush.instagram.domain.CreateLiveResponse;
 import com.mobcrush.instagram.domain.LikeCountResponse;
 import com.mobcrush.instagram.service.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.brunocvcunha.instagram4j.Instagram4j;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -28,11 +29,19 @@ public class Application {
     @Option(name = "-t", aliases = "--token", usage = "Instagram token")
     private String token;
 
+    @Option(name = "-uuid", usage = "Instagram uuid")
+    private String uuid;
+
+    @Option(name = "-sessionid", usage = "Instagram sessionId")
+    private String sessionId;
+
     @Option(name = "-f", aliases = "--file", usage = "Path to video file")
     private String videoFile;
 
     @Option(name = "-s", aliases = "--stream", usage = "RTMP stream URL")
     private String streamUrl;
+
+    private boolean isLoginByToken = false;
 
     public static void main(String[] args) {
         new Application().doMain(args);
@@ -42,10 +51,12 @@ public class Application {
         parseArgs(args);
 
         try {
-            Instagram4j instagram = new AuthenticateService().login(user, password);
-
-            //Instagram4j myInstagram = new AuthenticateService().loginByToken(instagram);
-
+            Instagram4j instagram;
+            if (isLoginByToken) {
+                instagram = new AuthenticateService().loginByToken(token, uuid, sessionId);
+            } else {
+                instagram = new AuthenticateService().login(user, password);
+            }
 
             LiveBroadcastService liveBroadcastService = new LiveBroadcastService(instagram);
             CreateLiveResponse live = liveBroadcastService.start();
@@ -100,8 +111,9 @@ public class Application {
         try {
             // parse the arguments.
             parser.parseArgument(args);
-            if ( (StringUtils.isEmpty(user) || StringUtils.isEmpty(password)) && StringUtils.isEmpty(token))
-                throw new CmdLineException(parser, "You should set username/password or token ");
+            if ( (StringUtils.isEmpty(user) || StringUtils.isEmpty(password)) &&
+                    (StringUtils.isEmpty(token) || StringUtils.isEmpty(uuid) || StringUtils.isEmpty(sessionId)) )
+                throw new CmdLineException(parser, "You should set username/password or token/uuid/sessionid ");
 
             if (StringUtils.isEmpty(videoFile) && StringUtils.isEmpty(streamUrl) )
                 throw new CmdLineException(parser, "You should set at least one of parameters -  path to video file or RTMP stream URL ");
@@ -115,6 +127,9 @@ public class Application {
             System.exit(1);
         }
 
+        if ( StringUtils.isNoneEmpty(token, uuid, sessionId)) {
+            isLoginByToken = true;
+        }
     }
 
 
