@@ -1,6 +1,11 @@
 package com.mobcrush.instagram.service.mediaserver;
 
+import com.mobcrush.instagram.domain.mediaserver.LiveStream;
+
+import javax.annotation.Nonnull;
+
 public interface MediaServerService {
 
-    void publish();
+    @Nonnull
+    LiveStream publish(@Nonnull String streamName);
 }

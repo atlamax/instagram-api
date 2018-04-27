@@ -4,6 +4,8 @@ import com.mobcrush.instagram.domain.CommentsResponse;
 import com.mobcrush.instagram.domain.CreateLiveResponse;
 import com.mobcrush.instagram.domain.LikeCountResponse;
 import com.mobcrush.instagram.service.*;
+import com.mobcrush.instagram.service.mediaserver.MediaServerService;
+import com.mobcrush.instagram.service.mediaserver.red5.Red5Service;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.brunocvcunha.instagram4j.Instagram4j;
@@ -12,6 +14,9 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 
 public class Application {
@@ -115,6 +120,8 @@ public class Application {
 
             BroadcastDataService broadcastDataService = new BroadcastDataService(instagram);
             LiveHeartbeatService liveHeartbeatService = new LiveHeartbeatService(instagram);
+            MediaServerService mediaServerService = new Red5Service("35.169.233.94");
+            String streamName = parseStreamName(streamUrl);
             do {
                 CommentsResponse comments = broadcastDataService.getComments(live.getBroadcastId());
                 if (comments != null) {
@@ -130,7 +137,7 @@ public class Application {
 
                 Thread.sleep(PULLING_BROADCAST_DATA_PAUSE);
 
-            } while (ffmpegThread.isAlive());
+            } while (isStreamContinue(mediaServerService, streamName));
 
             liveBroadcastService.end(live.getBroadcastId());
 
@@ -166,5 +173,23 @@ public class Application {
         }
     }
 
+    private boolean isStreamContinue(MediaServerService mediaServerService, String streamUrl) {
 
+        return mediaServerService.publish(streamUrl).isContinue();
+    }
+
+    private String parseStreamName(String streamUrl) {
+        try {
+            URI uri = new URI(streamUrl);
+            String[] paths = uri.getPath().split("/");
+
+            String result = paths[paths.length - 1];
+            LOG.info("Successfully parse stream name '{}'", result);
+
+            return result;
+        } catch (URISyntaxException e) {
+            LOG.error("Cannot parse stream URL");
+            return null;
+        }
+    }
 }

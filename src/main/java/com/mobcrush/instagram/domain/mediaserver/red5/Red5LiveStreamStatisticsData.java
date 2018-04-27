@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LiveStreamStatistics {
+public class Red5LiveStreamStatisticsData {
 
     @JsonProperty("id")
     private String id;
@@ -14,9 +14,6 @@ public class LiveStreamStatistics {
     private String name;
     @JsonProperty("publish_name")
     private String publishName;
-    @JsonProperty("is_recording")
-    private Boolean isRecording;
     @JsonProperty("state")
     private String state;
-
 }
