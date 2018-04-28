@@ -82,6 +82,16 @@ public class Application {
     )
     private String mobcrushAccessToken;
 
+    @Option(
+            name = "--mediaserver-host", usage = "Media Server host name or IP address", metaVar = "String"
+    )
+    private String mediaServerHost;
+
+    @Option(
+            name = "--mediaserver-access-token", usage = "Media Server access token", metaVar = "String"
+    )
+    private String mediaServerAccessToken;
+
     public static void main(String[] args) {
         new Application().doMain(args);
     }
@@ -120,7 +130,7 @@ public class Application {
 
             BroadcastDataService broadcastDataService = new BroadcastDataService(instagram);
             LiveHeartbeatService liveHeartbeatService = new LiveHeartbeatService(instagram);
-            MediaServerService mediaServerService = new Red5Service("35.169.233.94");
+            MediaServerService mediaServerService = new Red5Service(mediaServerHost, mediaServerAccessToken);
             String streamName = parseStreamName(streamUrl);
             do {
                 CommentsResponse comments = broadcastDataService.getComments(live.getBroadcastId());
@@ -139,6 +149,7 @@ public class Application {
 
             } while (isStreamContinue(mediaServerService, streamName));
 
+            LOG.info("Streaming is finish");
             liveBroadcastService.end(live.getBroadcastId());
 
         } catch (Exception ex) {
