@@ -9,6 +9,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +70,7 @@ public class Red5Service implements MediaServerService {
         result.setContinue(
                 HttpStatus.SC_OK == response.getStatusLine().getStatusCode()
         );
+        EntityUtils.consumeQuietly(response.getEntity());
 
         return result;
     }

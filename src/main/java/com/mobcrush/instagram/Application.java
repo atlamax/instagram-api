@@ -117,10 +117,7 @@ public class Application {
             if (streamUrl != null) {
                 ffmpegThread = FFmpegRunnerService.run(streamUrl, live.getUploadUrl());
             } else {
-                ffmpegThread = FFmpegRunnerService.run(videoFile, new URIBuilder(live.getUploadUrl())
-                        .setScheme("rtmp")
-                        .setPort(80)
-                        .build().toString());
+                ffmpegThread = FFmpegRunnerService.run(videoFile, fixStreamingURL(live));
             }
 
             if (ffmpegThread == null) {
@@ -151,10 +148,19 @@ public class Application {
 
             LOG.info("Streaming is finish");
             liveBroadcastService.end(live.getBroadcastId());
+            ffmpegThread.interrupt();
 
         } catch (Exception ex) {
             LOG.error("Something went wrong: ", ex);
         }
+    }
+
+    private String fixStreamingURL(CreateLiveResponse live) throws URISyntaxException {
+        return new URIBuilder(live.getUploadUrl())
+                .setScheme("rtmp")
+                .setPort(80)
+                .build()
+                .toString();
     }
 
     private void parseArgs(String[] args) {
