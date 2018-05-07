@@ -79,7 +79,7 @@ public class MobcrushService {
         URI putURI;
         try {
             putURI = new URIBuilder(host)
-                    .setPath("api/" + chatRoomId + "/presence")
+                    .setPath("api/chatroom/" + chatRoomId + "/presence")
                     .build();
         } catch (URISyntaxException e) {
             LOGGER.error("Cannot make precense call to Mobcrush due to incorrect URL", e);
@@ -96,6 +96,9 @@ public class MobcrushService {
         RequestConfig requestConfig = RequestConfig.custom()
                 .setSocketTimeout(SOCKET_TIMEOUT)
                 .setConnectTimeout(CONNECTION_TIMEOUT)
+                .setRedirectsEnabled(true)
+                .setRelativeRedirectsAllowed(true)
+                .setCircularRedirectsAllowed(true)
                 .build();
 
         CloseableHttpAsyncClient result = HttpAsyncClients.custom()
@@ -109,7 +112,7 @@ public class MobcrushService {
     private URI buildURI() {
         try {
             return new URIBuilder(host)
-                    .setPath("api/" + chatRoomId + "/chatmessage")
+                    .setPath("api/chatroom/" + chatRoomId + "/chatmessage")
                     .build();
         } catch (URISyntaxException e) {
             LOGGER.error("Cannot build URI for Mobcrush", e);

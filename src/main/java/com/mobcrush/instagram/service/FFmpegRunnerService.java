@@ -54,7 +54,7 @@ public class FFmpegRunnerService {
 
             FFmpegJob job = new FFmpegExecutor(ffmpeg, ffprobe)
                     .createJob(builder);
-            Thread thread = new Thread(() -> job.run());
+            Thread thread = new Thread(job);
             thread.start();
 
             return thread;

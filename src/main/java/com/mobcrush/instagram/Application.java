@@ -1,8 +1,12 @@
 package com.mobcrush.instagram;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mobcrush.instagram.domain.CommentsResponse;
 import com.mobcrush.instagram.domain.CreateLiveResponse;
 import com.mobcrush.instagram.domain.LikeCountResponse;
+import com.mobcrush.instagram.domain.mobcrush.ChatInlineMessage;
+import com.mobcrush.instagram.domain.mobcrush.ChatMessage;
 import com.mobcrush.instagram.service.*;
 import com.mobcrush.instagram.service.mediaserver.MediaServerService;
 import com.mobcrush.instagram.service.mediaserver.red5.Red5Service;
@@ -128,11 +132,33 @@ public class Application {
             BroadcastDataService broadcastDataService = new BroadcastDataService(instagram);
             LiveHeartbeatService liveHeartbeatService = new LiveHeartbeatService(instagram);
             MediaServerService mediaServerService = new Red5Service(mediaServerHost, mediaServerAccessToken);
+            MobcrushService mobcrushService = new MobcrushService(mobcrushChatroomId, mobcrushHost, mobcrushAccessToken);
+            ObjectMapper objectMapper = new ObjectMapper();
             String streamName = parseStreamName(streamUrl);
             do {
                 CommentsResponse comments = broadcastDataService.getComments(live.getBroadcastId());
                 if (comments != null) {
                     LOG.info("Get comments: {}", comments.getCount());
+                    comments.getComments().stream()
+                            .map(comment -> {
+                                ChatInlineMessage inlineMessage = ChatInlineMessage.builder()
+                                        .text(comment.getText())
+                                        .senderName(comment.getUser().getUsername())
+                                        .profileImage(comment.getUser().getProfilePictureURL())
+                                        .build();
+
+                                ChatMessage chatMessage = new ChatMessage();
+                                try {
+                                    chatMessage.setMessage(
+                                            objectMapper.writeValueAsString(inlineMessage)
+                                    );
+                                } catch (JsonProcessingException e) {
+                                    LOG.error("Cannot convert message text for sending to Mobcrush");
+                                }
+
+                                return chatMessage;
+                            })
+                            .forEach(mobcrushService::publish);
                 }
 
                 liveHeartbeatService.perform(live.getBroadcastId());
@@ -148,11 +174,13 @@ public class Application {
 
             LOG.info("Streaming is finish");
             liveBroadcastService.end(live.getBroadcastId());
-            ffmpegThread.interrupt();
 
         } catch (Exception ex) {
             LOG.error("Something went wrong: ", ex);
+        } finally {
+            System.exit(0);
         }
+
     }
 
     private String fixStreamingURL(CreateLiveResponse live) throws URISyntaxException {

@@ -8,7 +8,7 @@ public class ChatMessage {
     @JsonProperty("text")
     private String message;
     @JsonProperty("contentType")
-    private String contentType = "text/plain";
+    private String contentType = "application/x-mobcrush/message/instagram";
 
     public String getMessage() {
         return message;
