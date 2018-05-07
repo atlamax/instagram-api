@@ -139,26 +139,8 @@ public class Application {
                 CommentsResponse comments = broadcastDataService.getComments(live.getBroadcastId());
                 if (comments != null) {
                     LOG.info("Get comments: {}", comments.getCount());
-                    comments.getComments().stream()
-                            .map(comment -> {
-                                ChatInlineMessage inlineMessage = ChatInlineMessage.builder()
-                                        .text(comment.getText())
-                                        .senderName(comment.getUser().getUsername())
-                                        .profileImage(comment.getUser().getProfilePictureURL())
-                                        .build();
 
-                                ChatMessage chatMessage = new ChatMessage();
-                                try {
-                                    chatMessage.setMessage(
-                                            objectMapper.writeValueAsString(inlineMessage)
-                                    );
-                                } catch (JsonProcessingException e) {
-                                    LOG.error("Cannot convert message text for sending to Mobcrush");
-                                }
-
-                                return chatMessage;
-                            })
-                            .forEach(mobcrushService::publish);
+                    publishToMobcrush(mobcrushService, objectMapper, comments);
                 }
 
                 liveHeartbeatService.perform(live.getBroadcastId());
@@ -177,10 +159,36 @@ public class Application {
 
         } catch (Exception ex) {
             LOG.error("Something went wrong: ", ex);
-        } finally {
-            System.exit(0);
         }
 
+        System.exit(0);
+    }
+
+    private void publishToMobcrush(MobcrushService mobcrushService, ObjectMapper objectMapper, CommentsResponse comments) {
+        if (!isPushToMobcrush()) {
+            return;
+        }
+
+        comments.getComments().stream()
+                .map(comment -> {
+                    ChatInlineMessage inlineMessage = ChatInlineMessage.builder()
+                            .text(comment.getText())
+                            .senderName(comment.getUser().getUsername())
+                            .profileImage(comment.getUser().getProfilePictureURL())
+                            .build();
+
+                    ChatMessage chatMessage = new ChatMessage();
+                    try {
+                        chatMessage.setMessage(
+                                objectMapper.writeValueAsString(inlineMessage)
+                        );
+                    } catch (JsonProcessingException e) {
+                        LOG.error("Cannot convert message text for sending to Mobcrush");
+                    }
+
+                    return chatMessage;
+                })
+                .forEach(mobcrushService::publish);
     }
 
     private String fixStreamingURL(CreateLiveResponse live) throws URISyntaxException {
@@ -221,6 +229,12 @@ public class Application {
     private boolean isStreamContinue(MediaServerService mediaServerService, String streamUrl) {
 
         return mediaServerService.publish(streamUrl).isContinue();
+    }
+
+    private boolean isPushToMobcrush() {
+        return StringUtils.isNotEmpty(mobcrushAccessToken)
+                && StringUtils.isNotEmpty(mobcrushChatroomId)
+                && StringUtils.isNotEmpty(mobcrushHost);
     }
 
     private String parseStreamName(String streamUrl) {
