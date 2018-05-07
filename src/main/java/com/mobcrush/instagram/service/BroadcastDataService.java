@@ -1,5 +1,6 @@
 package com.mobcrush.instagram.service;
 
+import com.google.common.collect.Lists;
 import com.mobcrush.instagram.domain.Comment;
 import com.mobcrush.instagram.domain.CommentsResponse;
 import com.mobcrush.instagram.domain.LikeCountResponse;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import static org.apache.http.util.Asserts.notNull;
@@ -49,6 +51,15 @@ public class BroadcastDataService {
         }
 
         if (response.getCount() > 0) {
+            List<Comment> comments = Lists.newArrayList();
+            for (Comment comment: response.getComments()) {
+                if (comment.getCreatedDate() > commentTimestamp) {
+                    comments.add(comment);
+                }
+            }
+
+            response.setComments(comments);
+
             updateTimestamp(response);
         }
 
@@ -117,7 +128,7 @@ public class BroadcastDataService {
 
     private void updateTimestamp(CommentsResponse response) {
         long lastCommentTimestamp = 0;
-        if (response.getComments() != null) {
+        if (response.getComments() != null && !response.getComments().isEmpty()) {
             Optional<Comment> lastComment = response.getComments()
                     .stream()
                     .max(Comparator.comparing(Comment::getCreatedDate));
@@ -125,7 +136,7 @@ public class BroadcastDataService {
         }
 
         long lastSystemCommentTimestamp = 0;
-        if (response.getSystemComments() != null) {
+        if (response.getSystemComments() != null && !response.getSystemComments().isEmpty()) {
             Optional<Comment> lastSystemComment = response.getSystemComments()
                     .stream()
                     .max(Comparator.comparing(Comment::getCreatedDate));
