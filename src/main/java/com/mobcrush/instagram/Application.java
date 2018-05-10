@@ -2,6 +2,7 @@ package com.mobcrush.instagram;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mobcrush.instagram.domain.Comment;
 import com.mobcrush.instagram.domain.CommentsResponse;
 import com.mobcrush.instagram.domain.CreateLiveResponse;
 import com.mobcrush.instagram.domain.LikeCountResponse;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 
 public class Application {
@@ -136,9 +138,9 @@ public class Application {
             ObjectMapper objectMapper = new ObjectMapper();
             String streamName = parseStreamName(streamUrl);
             do {
-                CommentsResponse comments = broadcastDataService.getComments(live.getBroadcastId());
-                if (comments != null) {
-                    LOG.info("Get comments: {}", comments.getCount());
+                List<Comment> comments = broadcastDataService.getComments(live.getBroadcastId());
+                if (!comments.isEmpty()) {
+                    LOG.info("Get comments: {}", comments.size());
 
                     publishToMobcrush(mobcrushService, objectMapper, comments);
                 }
@@ -152,7 +154,7 @@ public class Application {
 
                 Thread.sleep(PULLING_BROADCAST_DATA_PAUSE);
 
-            } while (isStreamContinue(mediaServerService, streamName));
+            } while (ffmpegThread.isAlive() && isStreamContinue(mediaServerService, streamName));
 
             LOG.info("Streaming is finish");
             liveBroadcastService.end(live.getBroadcastId());
@@ -164,12 +166,12 @@ public class Application {
         System.exit(0);
     }
 
-    private void publishToMobcrush(MobcrushService mobcrushService, ObjectMapper objectMapper, CommentsResponse comments) {
+    private void publishToMobcrush(MobcrushService mobcrushService, ObjectMapper objectMapper, List<Comment> comments) {
         if (!isPushToMobcrush()) {
             return;
         }
 
-        comments.getComments().stream()
+        comments.stream()
                 .map(comment -> {
                     ChatInlineMessage inlineMessage = ChatInlineMessage.builder()
                             .text(comment.getText())

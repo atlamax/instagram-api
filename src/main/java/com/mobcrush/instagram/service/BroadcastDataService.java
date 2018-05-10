@@ -25,7 +25,7 @@ public class BroadcastDataService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BroadcastDataService.class);
 
-    private static final int COMMENTS_COUNT = 3;
+    private static final int COMMENTS_COUNT = 10;
 
     private Instagram4j instagram;
     private long commentTimestamp = 0;
@@ -40,30 +40,27 @@ public class BroadcastDataService {
         this.instagram = instagram;
     }
 
-    @Nullable
-    public CommentsResponse getComments(@Nonnull String broadcastId) {
+    @Nonnull
+    public List<Comment> getComments(@Nonnull String broadcastId) {
         notNull(broadcastId, "Broadcast Id must not be null");
+        List<Comment> result = Lists.newArrayList();
 
         GetCommentsRequest request = buildGetCommentsRequest(broadcastId);
         CommentsResponse response = sendRequest(request);
         if (response == null) {
-            return null;
+            return result;
         }
 
         if (response.getCount() > 0) {
-            List<Comment> comments = Lists.newArrayList();
             for (Comment comment: response.getComments()) {
                 if (comment.getCreatedDate() > commentTimestamp) {
-                    comments.add(comment);
+                    result.add(comment);
                 }
             }
-
-            response.setComments(comments);
-
-            updateTimestamp(response);
         }
+        updateTimestamp(response);
 
-        return response;
+        return result;
     }
 
     @Nullable
@@ -127,6 +124,10 @@ public class BroadcastDataService {
     }
 
     private void updateTimestamp(CommentsResponse response) {
+        if (response.getCount() == 0 && response.getSystemComments() == null) {
+            return;
+        }
+
         long lastCommentTimestamp = 0;
         if (response.getComments() != null && !response.getComments().isEmpty()) {
             Optional<Comment> lastComment = response.getComments()
