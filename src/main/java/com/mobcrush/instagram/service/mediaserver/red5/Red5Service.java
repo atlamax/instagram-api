@@ -26,6 +26,7 @@ public class Red5Service implements MediaServerService {
     private static final int RED5_API_PORT = 5080;
     private static final int CONNECTION_TIMEOUT = 1000;
     private static final int SOCKET_TIMEOUT = 1000;
+    private static final int RETRIES_NUMBER = 5;
 
     private String host;
     private String accessToken;
@@ -57,19 +58,24 @@ public class Red5Service implements MediaServerService {
                 .name(streamName)
                 .build();
 
+        int requestCount = 0;
         CloseableHttpResponse response;
-        try {
-            HttpGet httpGet = new HttpGet(buildURI(streamName));
-            response = httpClient.execute(httpGet);
-        } catch (IOException e) {
-            LOGGER.error("Error occurred during request to Red5", e);
-            return result;
-        }
+        do {
 
-        LOGGER.info("Response status from red5: " + response.getStatusLine().getStatusCode());
-        result.setContinue(
-                HttpStatus.SC_OK == response.getStatusLine().getStatusCode()
-        );
+            try {
+                HttpGet httpGet = new HttpGet(buildURI(streamName));
+                response = httpClient.execute(httpGet);
+            } catch (IOException e) {
+                LOGGER.error("Error occurred during request to Red5", e);
+                return result;
+            }
+
+            LOGGER.info("Response status from red5: " + response.getStatusLine().getStatusCode());
+            result.setContinue(
+                    HttpStatus.SC_OK == response.getStatusLine().getStatusCode()
+            );
+            requestCount ++;
+        } while (!result.isContinue() && requestCount <= RETRIES_NUMBER);
         EntityUtils.consumeQuietly(response.getEntity());
 
         return result;
